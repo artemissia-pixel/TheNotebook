@@ -678,7 +678,12 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
     </div>
     <input type="file" id="ob-file-input" accept=".txt,.md" style="display:none" onchange="handleOBFile(this)">
     <div class="ob-upload-preview" id="ob-upload-preview"></div>
-    <textarea class="ob-field" id="ob-paste" placeholder="או הדביקי טקסט כאן..." style="margin-top:16px;min-height:100px"></textarea>
+    <div style="display:flex;gap:8px;margin-top:16px;align-items:center">
+      <input type="url" class="fi" id="ob-url" placeholder="או הדביקי קישור לפוסט, מאמר, בלוג..." style="flex:1;direction:ltr;text-align:left" oninput="ob_url_changed(this)">
+      <button id="ob-url-btn" style="background:var(--accent);border:none;color:var(--bg);padding:10px 14px;font-family:inherit;font-size:0.8rem;cursor:pointer;white-space:nowrap" onclick="fetchOBUrl()">שלפי</button>
+    </div>
+    <div id="ob-url-status" style="font-size:0.72rem;color:var(--muted);margin-top:4px;display:none"></div>
+    <textarea class="ob-field" id="ob-paste" placeholder="או הדביקי טקסט כאן..." style="margin-top:12px;min-height:80px"></textarea>
     <button class="ob-finish" onclick="finishOnboarding()">סיימתי — התחילי ✓</button>
   </div>
   <div class="ob-nav">
@@ -1850,6 +1855,47 @@ function toggleDeadline() {
   const cb = document.getElementById('deadline-toggle');
   const fields = document.getElementById('deadline-fields');
   if (fields) fields.style.display = cb.checked ? 'block' : 'none';
+}
+
+
+function ob_url_changed(input) {
+  document.getElementById('ob-url-status').style.display = 'none';
+}
+
+async function fetchOBUrl() {
+  const url = document.getElementById('ob-url').value.trim();
+  if (!url) return;
+  const btn = document.getElementById('ob-url-btn');
+  const status = document.getElementById('ob-url-status');
+  btn.textContent = '...'; btn.disabled = true;
+  status.style.display = 'block'; status.textContent = 'מושכת תוכן...'; status.style.color = 'var(--muted)';
+  try {
+    // Use a CORS proxy to fetch the URL
+    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+    const resp = await fetch(proxyUrl);
+    const data = await resp.json();
+    if (data.contents) {
+      // Strip HTML tags
+      const tmp = document.createElement('div');
+      tmp.innerHTML = data.contents;
+      const text = (tmp.innerText || tmp.textContent || '').trim().substring(0, 2000);
+      if (text.length > 50) {
+        document.getElementById('ob-paste').value = text;
+        status.textContent = '✓ הטקסט נשלף בהצלחה';
+        status.style.color = 'var(--green)';
+      } else {
+        status.textContent = 'לא הצלחתי לשלוף טקסט — נסי להדביק ישירות';
+        status.style.color = 'var(--danger)';
+      }
+    } else {
+      status.textContent = 'לא הצלחתי לשלוף — הדביקי את הטקסט ישירות';
+      status.style.color = 'var(--danger)';
+    }
+  } catch(e) {
+    status.textContent = 'שגיאה — הדביקי את הטקסט ישירות';
+    status.style.color = 'var(--danger)';
+  }
+  btn.textContent = 'שלפי'; btn.disabled = false;
 }
 
 // ═══ SCRIPT FORMATTING ═══
