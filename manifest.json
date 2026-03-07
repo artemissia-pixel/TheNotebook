@@ -1,6 +1,6 @@
 {
-  "name": "כתיבה",
-  "short_name": "כתיבה",
+  "name": "המחברת",
+  "short_name": "המחברת",
   "description": "אפליקציית כתיבה יצירתית",
   "start_url": "./index.html",
   "display": "standalone",

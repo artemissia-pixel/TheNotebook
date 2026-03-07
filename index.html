@@ -629,12 +629,12 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
       <div class="ob-q">מה את רוצה לכתוב?</div>
     </div>
     <div class="ob-types">
-      <div class="ob-type" onclick="selOBType('סיפור קצר',this)"><div class="ob-type-icon">○</div><div class="ob-type-label">סיפור קצר</div></div>
-      <div class="ob-type" onclick="selOBType('שירה',this)"><div class="ob-type-icon">✦</div><div class="ob-type-label">שירה</div></div>
-      <div class="ob-type" onclick="selOBType('תסריט / מחזה',this)"><div class="ob-type-icon">◻</div><div class="ob-type-label">תסריט / מחזה</div></div>
-      <div class="ob-type" onclick="selOBType('מאמר / ספר עיון',this)"><div class="ob-type-icon">◈</div><div class="ob-type-label">מאמר / ספר עיון</div></div>
-      <div class="ob-type" onclick="selOBType('סושיאלים',this)"><div class="ob-type-icon">📲</div><div class="ob-type-label">סושיאלים</div></div>
-      <div class="ob-type" onclick="selOBType('לא יודעת עדיין',this)"><div class="ob-type-icon">—</div><div class="ob-type-label">לא יודעת עדיין</div></div>
+      <button class="ob-type" onclick="selOBType('סיפור קצר',this)"><div class="ob-type-icon">○</div><div class="ob-type-label">סיפור קצר</div></button>
+      <button class="ob-type" onclick="selOBType('שירה',this)"><div class="ob-type-icon">✦</div><div class="ob-type-label">שירה</div></button>
+      <button class="ob-type" onclick="selOBType('תסריט / מחזה',this)"><div class="ob-type-icon">◻</div><div class="ob-type-label">תסריט / מחזה</div></button>
+      <button class="ob-type" onclick="selOBType('מאמר / ספר עיון',this)"><div class="ob-type-icon">◈</div><div class="ob-type-label">מאמר / ספר עיון</div></button>
+      <button class="ob-type" onclick="selOBType('סושיאלים',this)"><div class="ob-type-icon">📲</div><div class="ob-type-label">סושיאלים</div></button>
+      <button class="ob-type" onclick="selOBType('לא יודעת עדיין',this)"><div class="ob-type-icon">—</div><div class="ob-type-label">לא יודעת עדיין</div></button>
     </div>
   </div>
   <!-- STEP 3: WHAT TO WRITE -->
@@ -736,8 +736,9 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
             <label class="fl" style="margin:0">דדליין</label>
             <label class="toggle"><input type="checkbox" id="deadline-toggle" onchange="toggleDeadline()"><span class="toggle-slider"></span></label>
           </div>
-          <div id="deadline-fields" style="display:none;margin-top:10px;display:none">
-            <input type="date" class="fi" id="p-deadline" style="margin-bottom:8px">
+          <div id="deadline-fields" style="display:none;margin-top:10px">
+            <input type="text" class="fi" id="p-deadline-text" placeholder="למשל: סוף 2025, לפני הקיץ..." style="margin-bottom:8px">
+            <input type="date" class="fi" id="p-deadline" style="margin-bottom:8px;opacity:0.7;font-size:0.85rem">
             <div style="display:flex;align-items:center;gap:10px">
               <label style="font-size:0.75rem;color:var(--muted)">תזכורת</label>
               <label class="toggle"><input type="checkbox" id="deadline-reminder"><span class="toggle-slider"></span></label>
@@ -803,11 +804,11 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
       <div id="poem-sec" style="display:none">
         <div class="fg"><label class="fl">נושא השיר</label><input type="text" class="fi" id="p-poem-topic" placeholder="על מה השיר?"></div>
         <div class="fg"><label class="fl">על מה השיר הזה</label><textarea class="fta" id="p-poem-about" placeholder="מה עומד מאחורי השיר..." style="min-height:60px"></textarea></div>
-        <div id="poem-cycle-sec">
+        <div id="poem-cycle-sec" style="display:none">
           <div class="fg">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <label class="fl" style="margin:0">מחזור שירים</label>
-              <label class="toggle"><input type="checkbox" id="poem-cycle-toggle"><span class="toggle-slider"></span></label>
+              <label class="toggle"><input type="checkbox" id="poem-cycle-toggle" onchange="togglePoemCycle(this)"><span class="toggle-slider"></span></label>
             </div>
           </div>
         </div>
@@ -894,7 +895,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
     <div class="mhdr"><div class="mttl">עזרה בכתיבה</div><button class="mcls" onclick="cls('social-ai-sheet')">✕</button></div>
     <div class="mb">
       <div class="fg">
-        <label class="fl">על מה את רוצה לכתוב?</label>
+        <label class="fl">מה עולה לך בראש?</label>
         <textarea class="fta" id="social-ai-topic" placeholder="רעיון, נושא, רגש, אירוע — כל דבר שעלה..." style="min-height:80px"></textarea>
       </div>
       <div class="fg">
@@ -967,7 +968,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
         <div style="display:flex;flex-direction:column;gap:8px">
           <button class="bfull" onclick="exportData()">💾 הורידי גיבוי (JSON)</button>
           <button class="bfull" style="background:none;border:1px solid var(--border);color:var(--muted2)" onclick="document.getElementById('import-input').click()">📥 שחזרי מגיבוי</button>
-          <button class="bfull" style="background:none;border:1px solid var(--border);color:var(--muted2)" onclick="exportPDF()">📄 ייצאי את כל הרשומות</button>
+          <button class="bfull" style="background:none;border:1px solid var(--border);color:var(--muted2)" onclick="exportPDF()">📄 ייצאי הכל</button>
           <button class="bfull" style="background:none;border:1px solid var(--border);color:var(--muted2)" onclick="shareApp()">🔗 שלחי את האפליקציה לחברה</button>
         </div>
       </div>
@@ -1427,7 +1428,7 @@ let tt;function toast(msg){const el=document.getElementById('toast');el.textCont
 const WORKER_URL = DB.get('worker_url', '') || '';
 
 // ═══ ONBOARDING ═══
-let OB = { step: 1, totalSteps: 5, type: null, lifeQ: null, userName: '', timerLeft: 300, timerRunning: false, timerInterval: null };
+let OB = { step: 1, totalSteps: 5, type: null, types: [], lifeQ: null, userName: '', timerLeft: 300, timerRunning: false, timerInterval: null };
 
 function initApp() {
   const profile = DB.get('profile', null);
@@ -1492,9 +1493,15 @@ function setOBQ(mode, el) {
 }
 
 function selOBType(type, el) {
-  OB.type = type;
-  document.querySelectorAll('.ob-type').forEach(b => b.classList.remove('sel'));
-  el.classList.add('sel');
+  if (!Array.isArray(OB.types)) OB.types = [];
+  if (OB.types.includes(type)) {
+    OB.types = OB.types.filter(t => t !== type);
+    el.classList.remove('sel');
+  } else {
+    OB.types.push(type);
+    el.classList.add('sel');
+  }
+  OB.type = OB.types[0] || '';
 }
 
 // onboarding timer (5 min free write)
@@ -1831,6 +1838,18 @@ function writeFromNote(id) {
     const wctx = document.getElementById('wctx');
     if (wctx) { wctx.textContent = '✦ ' + note.text.substring(0, 40) + (note.text.length > 40 ? '...' : ''); wctx.style.color = 'var(--accent)'; }
   }, 100);
+}
+
+
+function togglePoemCycle(cb) {
+  document.getElementById('poem-cycle-name-fg').style.display = cb.checked ? 'block' : 'none';
+}
+
+
+function toggleDeadline() {
+  const cb = document.getElementById('deadline-toggle');
+  const fields = document.getElementById('deadline-fields');
+  if (fields) fields.style.display = cb.checked ? 'block' : 'none';
 }
 
 // ═══ SCRIPT FORMATTING ═══
@@ -2496,32 +2515,57 @@ function importData(input) {
   input.value = '';
 }
 
-function exportPDF() {
-  const entries = DB.get('entries', []);
+function exportPDF(projectId) {
+  const allEntries = DB.get('entries', []);
+  const entries = projectId ? allEntries.filter(e => e.projectId === projectId) : allEntries;
   if (!entries.length) { toast('אין רשומות לייצא'); return; }
   const profile = DB.get('profile', {});
-  let html = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+  const project = projectId ? DB.get('projects',[]).find(p=>p.id===projectId) : null;
+  const isPoem = project && project.type === 'שיר / פזמון';
+  const isScript = project && project.type === 'תסריט / מחזה';
+
+  const poemCSS = `
+    .entry { page-break-after: always; min-height: 90vh; display: flex; flex-direction: column; justify-content: center; padding: 60px 80px; }
+    .entry-text { font-family: 'David', serif; font-size: 1.1rem; line-height: 2.2; white-space: pre-wrap; text-align: center; }
+    .entry-title { font-size: 1.4rem; font-weight: bold; text-align: center; margin-bottom: 24px; }
+  `;
+  const scriptCSS = `
+    body { font-family: 'Courier New', monospace; direction: ltr; text-align: left; }
+    .entry { margin-bottom: 0; page-break-inside: avoid; }
+    .entry-text { font-size: 12pt; line-height: 1.5; white-space: pre-wrap; }
+    .page-num { text-align: right; font-size: 10pt; color: #888; margin-bottom: 8px; }
+  `;
+  const defaultCSS = `
+    .entry { margin-bottom: 40px; page-break-inside: avoid; }
+    .entry-text { font-size: 1rem; line-height: 2; white-space: pre-wrap; }
+    .entry-divider { border: none; border-top: 1px solid #eee; margin: 32px 0; }
+  `;
+
+  let html = `<!DOCTYPE html><html dir="${isScript?'ltr':'rtl'}"><head><meta charset="UTF-8">
   <style>
-    body{font-family:'David',serif;max-width:700px;margin:40px auto;color:#1a1a1a;line-height:1.8;direction:rtl}
-    h1{font-size:2rem;font-weight:300;border-bottom:1px solid #ddd;padding-bottom:12px;margin-bottom:32px}
-    .entry{margin-bottom:40px;page-break-inside:avoid}
-    .entry-meta{font-size:0.75rem;color:#888;margin-bottom:8px;letter-spacing:1px}
-    .entry-text{font-size:1rem;line-height:2;white-space:pre-wrap}
-    .entry-divider{border:none;border-top:1px solid #eee;margin:32px 0}
+    @page { margin: 2.5cm; }
+    body { font-family: 'David', serif; max-width: ${isScript?'650px':'700px'}; margin: 40px auto; color: #1a1a1a; line-height: 1.8; direction: ${isScript?'ltr':'rtl'}; }
+    h1 { font-size: 2rem; font-weight: 300; border-bottom: 1px solid #ddd; padding-bottom: 12px; margin-bottom: 32px; }
+    .entry-meta { font-size: 0.75rem; color: #888; margin-bottom: 8px; letter-spacing: 1px; }
+    ${isPoem ? poemCSS : isScript ? scriptCSS : defaultCSS}
   </style>
 </head><body>
-  <h1>המחברת${profile.name ? ' — ' + profile.name : ''}</h1>`;
-  entries.forEach(e => {
+  <h1>${project ? project.name : 'המחברת'}${profile.name ? ' — ' + profile.name : ''}</h1>`;
+
+  entries.forEach((e, idx) => {
     const d = new Date(e.date).toLocaleDateString('he-IL', {day:'numeric', month:'long', year:'numeric'});
-    html += `<div class="entry"><div class="entry-meta">${d} · ${e.words||0} מילים${e.projectName?' · '+e.projectName:''}</div><div class="entry-text">${e.text.replace(/</g,'&lt;')}</div></div><hr class="entry-divider">`;
+    const meta = isScript ? `<div class="page-num">${idx+1}.</div>` : `<div class="entry-meta">${d} · ${e.words||0} מילים</div>`;
+    const divider = isPoem || isScript ? '' : '<hr class="entry-divider">';
+    html += `<div class="entry">${meta}<div class="entry-text">${e.text.replace(/</g,'&lt;')}</div></div>${divider}`;
   });
   html += '</body></html>';
   const blob = new Blob([html], {type:'text/html'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `המחברת-${new Date().toLocaleDateString('he-IL').replace(/\//g,'-')}.html`;
-  a.click();
+  const fname = project ? project.name.replace(/[^a-zA-Z֐-׿]/g,'-') : 'המחברת';
+  a.download = `${fname}-${new Date().toISOString().slice(0,10)}.html`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
   toast('ייצוא הורד ✓');
 }
@@ -2621,6 +2665,15 @@ function openProfile() {
   const profile = DB.get('profile', {});
   document.getElementById('profile-name-edit').value = profile.name || '';
   profileType = profile.writingType || '';
+  // restore multi-select
+  const savedTypes = (profile.writingTypes || (profileType ? [profileType] : []));
+  setTimeout(() => {
+    document.querySelectorAll('#profile-sheet .tbtn').forEach(b => {
+      const typeMap = {'פרוזה':'סיפור קצר','שירה':'שירה','תסריט / מחזה':'תסריט / מחזה','מאמר / ספר עיון':'מאמר / ספר עיון','סושיאלים':'סושיאלים','רומאן':'רומאן','לא יודעת עדיין':'לא יודעת עדיין'};
+      const t = typeMap[b.textContent.trim()] || b.textContent.trim();
+      if (savedTypes.includes(t) || savedTypes.includes(b.textContent.trim())) b.classList.add('selected');
+    });
+  }, 50);
   document.querySelectorAll('#profile-sheet .tbtn').forEach(b => {
     b.classList.toggle('selected', b.textContent.trim() === profileType || 
       (profileType && profileType.includes(b.textContent.trim())));
@@ -2630,9 +2683,26 @@ function openProfile() {
 }
 
 function selProfileType(type, el) {
+  if (type === 'לא יודעת עדיין') {
+    const already = el.classList.contains('selected');
+    document.querySelectorAll('#profile-sheet .tbtn').forEach(b => b.classList.remove('selected'));
+    if (!already) { el.classList.add('selected'); profileType = type; }
+    else profileType = '';
+    return;
+  }
+  // multi-select — remove "לא יודעת עדיין" if active
+  document.querySelectorAll('#profile-sheet .tbtn').forEach(b => {
+    if (b.textContent.trim() === 'לא יודעת עדיין') b.classList.remove('selected');
+  });
+  el.classList.toggle('selected');
+  const sel = [...document.querySelectorAll('#profile-sheet .tbtn.selected')].map(b => b.textContent.trim());
+  profileType = sel.join(',');
+  return;
+  // original single:
   profileType = type;
   document.querySelectorAll('#profile-sheet .tbtn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
+  // end original
 }
 
 function saveProfileEdit() {
@@ -2819,6 +2889,25 @@ function selType(type, el) {
   document.getElementById('save-project-btn').style.display = isSocial ? 'none' : '';
   const lbl = document.getElementById('strucsec-label');
   if (lbl) lbl.textContent = type === 'מאמר / ספר עיון' ? 'פרקים / חלקים' : 'שלבי הסיפור';
+  const pnlbl = document.getElementById('pname-label');
+  if (pnlbl) {
+    if (type === 'שיר / פזמון') pnlbl.textContent = 'שם השיר / הפזמון';
+    else if (type === 'תסריט / מחזה') pnlbl.textContent = 'שם התסריט / המחזה';
+    else if (type === 'מאמר / ספר עיון') pnlbl.textContent = 'שם הספר / המאמר';
+    else if (type === 'רומאן') pnlbl.textContent = 'שם הרומאן';
+    else if (type === 'סיפור קצר') pnlbl.textContent = 'שם הסיפור';
+    else pnlbl.textContent = 'שם הפרויקט';
+  }
+  const psumlbl = document.getElementById('psum-label');
+  const psumfg = document.getElementById('psum-fg');
+  if (type === 'שיר / פזמון') {
+    if (psumfg) psumfg.style.display = 'none';
+  } else {
+    if (psumfg) psumfg.style.display = '';
+    if (psumlbl) psumlbl.textContent = type === 'מאמר / ספר עיון' ? 'על מה הספר / המאמר' : type === 'תסריט / מחזה' ? 'על מה התסריט' : type === 'רומאן' ? 'על מה הרומאן' : 'תקציר / רעיון';
+  }
+  const showStage = type !== 'סושיאלים' && type !== 'לא יודעת עדיין';
+  document.getElementById('stage-sec').style.display = showStage ? 'block' : 'none';
   if (hasChapters && document.getElementById('cl').children.length === 0) addChapter();
 }
 
@@ -2915,7 +3004,7 @@ function resetOnboarding() {
   if (!confirm('לאפס את הפרופיל ולעבור Onboarding מחדש?')) return;
   DB.set('profile', null);
   DB.set('ph', []);
-  OB = { step: 1, totalSteps: 5, type: null, timerLeft: 300, timerRunning: false, timerInterval: null };
+  OB = { step: 1, totalSteps: 5, type: null, types: [], lifeQ: null, userName: '', timerLeft: 300, timerRunning: false, timerInterval: null };
   document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
   document.getElementById('ob1').classList.add('active');
   updateOBProgress();

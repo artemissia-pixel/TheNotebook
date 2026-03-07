@@ -1,4 +1,4 @@
-const CACHE = 'writing-v1';
+const CACHE = 'writing-v9';
 const FILES = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
