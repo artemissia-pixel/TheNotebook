@@ -295,6 +295,9 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .ob-type.sel{border-color:var(--accent);background:var(--accent2)}
 .ob-type-icon{font-size:1.2rem;flex-shrink:0}
 .ob-type-label{font-size:0.95rem;color:var(--text) !important}
+.notif-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)}
+.notif-row-title{font-size:0.9rem;color:var(--text);margin-bottom:2px}
+.notif-row-sub{font-size:0.72rem;color:var(--muted)}
 .ob-upload{margin-top:24px;border:1px dashed var(--border2);padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s}
 .ob-upload:active{border-color:var(--accent)}
 .ob-upload-hint{font-size:0.82rem;color:var(--muted);margin-top:8px;line-height:1.6}
@@ -671,7 +674,27 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
       <button class="ob-type" style="flex:1;justify-content:center" onclick="setOBQ('idea',this)"><div class="ob-type-label">יש משהו בראש</div></button>
       <button class="ob-type" style="flex:1;justify-content:center" onclick="setOBQ('explore',this)"><div class="ob-type-label">אני מחפשת</div></button>
     </div>
-    <textarea class="ob-field" id="ob-life" placeholder="ספרי..." style="margin-top:20px"></textarea>
+    <div id="ob-topics-grid" style="display:none;margin-top:16px">
+      <div style="font-size:0.72rem;color:var(--muted);letter-spacing:1px;margin-bottom:10px">בחרי נושאים שמדברים אליך (אפשר כמה):</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button class="fchip ob-topic" onclick="selOBTopic('זיכרון',this)">זיכרון</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('גוף',this)">גוף</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('מקום',this)">מקום</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('קשר',this)">קשר</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('אובדן',this)">אובדן</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('זמן',this)">זמן</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('שינוי',this)">שינוי</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('סוד',this)">סוד</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('חלום',this)">חלום</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('כעס',this)">כעס</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('השתייכות',this)">השתייכות</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('בית',this)">בית</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('שפה',this)">שפה</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('מוזיקה',this)">מוזיקה</button>
+        <button class="fchip ob-topic" onclick="selOBTopic('ילדות',this)">ילדות</button>
+      </div>
+    </div>
+    <textarea class="ob-field" id="ob-life" placeholder="ספרי..." style="margin-top:16px"></textarea>
   </div>
   <!-- STEP 4: FREE WRITE with timer -->
   <div class="ob-step" id="ob4">
@@ -708,7 +731,55 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
     </div>
     <div id="ob-url-status" style="font-size:0.72rem;color:var(--muted);margin-top:4px;display:none"></div>
     <textarea class="ob-field" id="ob-paste" placeholder="או הדביקי טקסט כאן..." style="margin-top:12px;min-height:80px"></textarea>
-    <button class="ob-finish" onclick="finishOnboarding()">סיימתי — התחילי ✓</button>
+  </div>
+  <!-- STEP 6: NOTIFICATIONS -->
+  <div class="ob-step" id="ob6">
+    <div class="ob-hero">
+      <div class="ob-step-num">כמעט סיימנו</div>
+      <div class="ob-q">תזכורות כתיבה</div>
+      <div class="ob-hint">המחברת תדפוק לך על הכתף. את תחליטי מתי ואיך.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-top:8px">
+      <div class="notif-row" id="nr-daily">
+        <div class="notif-row-text">
+          <div class="notif-row-title">✏️ תזכורת יומית</div>
+          <div class="notif-row-sub">שעה קבועה לכתיבה</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="time" id="ob-notif-time" value="20:00" class="fi" style="width:90px;font-size:0.8rem;padding:5px 8px;display:none">
+          <label class="toggle"><input type="checkbox" id="ob-notif-daily" onchange="obNotifToggle('daily',this)"><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+      <div class="notif-row">
+        <div class="notif-row-text">
+          <div class="notif-row-title">🌙 לא כתבת היום</div>
+          <div class="notif-row-sub">נאדג' עדין בערב</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="ob-notif-streak"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="notif-row">
+        <div class="notif-row-text">
+          <div class="notif-row-title">✦ השראה יומית</div>
+          <div class="notif-row-sub">משפט או נושא לכתיבה</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="ob-notif-inspo"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="notif-row">
+        <div class="notif-row-text">
+          <div class="notif-row-title">📅 תזכורת דדליין</div>
+          <div class="notif-row-sub">שבוע ויום לפני</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="ob-notif-deadline"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="notif-row">
+        <div class="notif-row-text">
+          <div class="notif-row-title">🔥 רצף</div>
+          <div class="notif-row-sub">כשאת כותבת ימים ברצף</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="ob-notif-fire"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <button class="ob-finish" onclick="finishOnboarding()" style="margin-top:24px">סיימתי — התחילי ✓</button>
   </div>
   <div class="ob-nav">
     <button class="ob-skip" id="ob-back-btn" onclick="obBack()" style="display:none">‹ חזרה</button>
@@ -1461,7 +1532,7 @@ let tt;function toast(msg){const el=document.getElementById('toast');el.textCont
 const WORKER_URL = DB.get('worker_url', '') || '';
 
 // ═══ ONBOARDING ═══
-let OB = { step: 1, totalSteps: 5, type: null, types: [], lifeQ: null, userName: '', timerLeft: 300, timerRunning: false, timerInterval: null };
+let OB = { step: 1, totalSteps: 6, type: null, types: [], lifeQ: null, userName: '', timerLeft: 300, timerRunning: false, timerInterval: null };
 
 function initApp() {
   const profile = DB.get('profile', null);
@@ -1516,12 +1587,15 @@ function setOBQ(mode, el) {
   document.querySelectorAll('#ob3 .ob-type').forEach(b => b.classList.remove('sel'));
   el.classList.add('sel');
   const ta = document.getElementById('ob-life');
+  const grid = document.getElementById('ob-topics-grid');
   if (mode === 'idea') {
     OB.lifeQ = 'על מה רוצה לכתוב?';
     ta.placeholder = 'ספרי על הרעיון, גם בגסות...';
+    if (grid) grid.style.display = 'none';
   } else {
     OB.lifeQ = 'מה מושך אותך בתקופה האחרונה?';
-    ta.placeholder = 'נושא, תחושה, שאלה, דמות — מה שעולה...';
+    ta.placeholder = 'או כתבי בחופשיות...';
+    if (grid) grid.style.display = 'block';
   }
 }
 
@@ -1963,6 +2037,27 @@ function initNotifToggle() {
     const timeRow = document.getElementById('notif-time-row');
     if (timeRow) timeRow.style.display = 'flex';
     if (profile.notifTime) document.getElementById('notif-time').value = profile.notifTime;
+  }
+}
+
+
+function selOBTopic(topic, el) {
+  if (!Array.isArray(OB.topics)) OB.topics = [];
+  if (OB.topics.includes(topic)) {
+    OB.topics = OB.topics.filter(t => t !== topic);
+    el.classList.remove('active');
+  } else {
+    OB.topics.push(topic);
+    el.classList.add('active');
+  }
+}
+
+function obNotifToggle(type, cb) {
+  if (type === 'daily') {
+    document.getElementById('ob-notif-time').style.display = cb.checked ? 'block' : 'none';
+    if (cb.checked && window.OneSignal) {
+      OneSignal.Slidedown.promptPush();
+    }
   }
 }
 
@@ -3119,7 +3214,7 @@ function resetOnboarding() {
   if (!confirm('לאפס את הפרופיל ולעבור Onboarding מחדש?')) return;
   DB.set('profile', null);
   DB.set('ph', []);
-  OB = { step: 1, totalSteps: 5, type: null, types: [], lifeQ: null, userName: '', timerLeft: 300, timerRunning: false, timerInterval: null };
+  OB = { step: 1, totalSteps: 6, type: null, types: [], lifeQ: null, userName: '', timerLeft: 300, timerRunning: false, timerInterval: null };
   document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
   document.getElementById('ob1').classList.add('active');
   updateOBProgress();
