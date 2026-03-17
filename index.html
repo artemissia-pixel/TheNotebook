@@ -1058,13 +1058,52 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
         </div>
       </div>
       <div class="fg">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <label class="fl" style="margin:0">תזכורות כתיבה</label>
-          <label class="toggle"><input type="checkbox" id="notif-toggle" onchange="toggleNotifications(this)"><span class="toggle-slider"></span></label>
-        </div>
-        <div id="notif-time-row" style="display:none;align-items:center;gap:10px">
-          <span style="font-size:0.78rem;color:var(--muted)">שעה מועדפת</span>
-          <input type="time" id="notif-time" value="20:00" class="fi" style="width:100px;font-size:0.85rem;padding:6px 10px">
+        <label class="fl">תזכורות כתיבה</label>
+        <div style="display:flex;flex-direction:column;gap:0">
+          <div class="notif-row">
+            <div class="notif-row-text">
+              <div class="notif-row-title">✏️ תזכורת יומית</div>
+              <div class="notif-row-sub">שעה קבועה לכתיבה</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="time" id="s-notif-daily-time" value="20:00" class="fi" id="s-notif-daily-time" style="width:88px;font-size:0.8rem;padding:5px 8px;display:none">
+              <label class="toggle"><input type="checkbox" id="s-notif-daily" onchange="sNotifToggle('daily',this)"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+          <div class="notif-row">
+            <div class="notif-row-text">
+              <div class="notif-row-title">🌙 לא כתבת היום</div>
+              <div class="notif-row-sub">נאדג' עדין בערב</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="time" id="s-notif-streak-time" value="21:30" class="fi" style="width:88px;font-size:0.8rem;padding:5px 8px;display:none">
+              <label class="toggle"><input type="checkbox" id="s-notif-streak" onchange="sNotifToggle('streak',this)"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+          <div class="notif-row">
+            <div class="notif-row-text">
+              <div class="notif-row-title">✦ השראה יומית</div>
+              <div class="notif-row-sub">משפט או נושא לכתיבה</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="time" id="s-notif-inspo-time" value="09:00" class="fi" style="width:88px;font-size:0.8rem;padding:5px 8px;display:none">
+              <label class="toggle"><input type="checkbox" id="s-notif-inspo" onchange="sNotifToggle('inspo',this)"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+          <div class="notif-row">
+            <div class="notif-row-text">
+              <div class="notif-row-title">📅 תזכורת דדליין</div>
+              <div class="notif-row-sub">שבוע ויום לפני</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="s-notif-deadline" onchange="sNotifToggle('deadline',this)"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="notif-row">
+            <div class="notif-row-text">
+              <div class="notif-row-title">🔥 רצף</div>
+              <div class="notif-row-sub">כשאת כותבת ימים ברצף</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="s-notif-fire" onchange="sNotifToggle('fire',this)"><span class="toggle-slider"></span></label>
+          </div>
         </div>
       </div>
       <div class="fg">
@@ -2061,6 +2100,57 @@ function obNotifToggle(type, cb) {
   }
 }
 
+
+function sNotifToggle(type, cb) {
+  const timeInputs = { daily: 's-notif-daily-time', streak: 's-notif-streak-time', inspo: 's-notif-inspo-time' };
+  if (timeInputs[type]) {
+    const inp = document.getElementById(timeInputs[type]);
+    if (inp) inp.style.display = cb.checked ? 'block' : 'none';
+  }
+  if (cb.checked && type === 'daily' && window.OneSignal) {
+    OneSignal.Slidedown.promptPush();
+  }
+  saveNotifSettings();
+}
+
+function saveNotifSettings() {
+  const profile = DB.get('profile', {});
+  profile.notif = {
+    daily: document.getElementById('s-notif-daily') ? document.getElementById('s-notif-daily').checked : false,
+    dailyTime: document.getElementById('s-notif-daily-time') ? document.getElementById('s-notif-daily-time').value : '20:00',
+    streak: document.getElementById('s-notif-streak') ? document.getElementById('s-notif-streak').checked : false,
+    streakTime: document.getElementById('s-notif-streak-time') ? document.getElementById('s-notif-streak-time').value : '21:30',
+    inspo: document.getElementById('s-notif-inspo') ? document.getElementById('s-notif-inspo').checked : false,
+    inspoTime: document.getElementById('s-notif-inspo-time') ? document.getElementById('s-notif-inspo-time').value : '09:00',
+    deadline: document.getElementById('s-notif-deadline') ? document.getElementById('s-notif-deadline').checked : false,
+    fire: document.getElementById('s-notif-fire') ? document.getElementById('s-notif-fire').checked : false,
+  };
+  DB.set('profile', profile);
+}
+
+function initSettingsNotif() {
+  const profile = DB.get('profile', {});
+  const n = profile.notif || {};
+  const map = [
+    ['s-notif-daily', 'daily', 's-notif-daily-time'],
+    ['s-notif-streak', 'streak', 's-notif-streak-time'],
+    ['s-notif-inspo', 'inspo', 's-notif-inspo-time'],
+    ['s-notif-deadline', 'deadline', null],
+    ['s-notif-fire', 'fire', null],
+  ];
+  map.forEach(([cbId, key, timeId]) => {
+    const cb = document.getElementById(cbId);
+    if (cb) cb.checked = !!n[key];
+    if (timeId) {
+      const inp = document.getElementById(timeId);
+      if (inp) {
+        if (n[key + 'Time']) inp.value = n[key + 'Time'];
+        inp.style.display = n[key] ? 'block' : 'none';
+      }
+    }
+  });
+}
+
 // ═══ SCRIPT FORMATTING ═══
 let scriptWriteMode = false;
 
@@ -2871,7 +2961,7 @@ async function requestFeedback(text) {
 let profileType = '';
 
 function openProfile() {
-  setTimeout(initNotifToggle, 100);
+  setTimeout(initSettingsNotif, 100);
   const profile = DB.get('profile', {});
   document.getElementById('profile-name-edit').value = profile.name || '';
   profileType = profile.writingType || '';
